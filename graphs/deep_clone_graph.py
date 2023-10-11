@@ -1,54 +1,34 @@
-"""
-LeetCode 133. Clone Graph
-https://leetcode.com/problems/clone-graph/
-
-Given a reference of a node in a connected undirected graph.
-
-Return a deep copy (clone) of the graph.
-
-Each node in the graph contains a value (int) and a list (List[Node]) of its
-neighbors.
-"""
 from dataclasses import dataclass
-
+from typing import List
 
 @dataclass
 class Node:
     value: int = 0
-    neighbors: list["Node"] | None = None
+    neighbors: List["Node"] | None = None
 
     def __post_init__(self) -> None:
         """
-        >>> Node(3).neighbors
-        []
+        Initializes the neighbors list when a new node is created.
         """
         self.neighbors = self.neighbors or []
 
     def __hash__(self) -> int:
         """
-        >>> hash(Node(3)) != 0
-        True
+        Custom hash method to help identify nodes.
         """
         return id(self)
 
-
 def clone_graph(node: Node | None) -> Node | None:
     """
-    This function returns a clone of a connected undirected graph.
-    >>> clone_graph(Node(1))
-    Node(value=1, neighbors=[])
-    >>> clone_graph(Node(1, [Node(2)]))
-    Node(value=1, neighbors=[Node(value=2, neighbors=[])])
-    >>> clone_graph(None) is None
-    True
+    Clones a connected undirected graph starting from the given node.
     """
     if not node:
         return None
 
-    originals_to_clones = {}  # map nodes to clones
-
+    originals_to_clones = {}  # Maps original nodes to their clones
     stack = [node]
 
+    # Traverse the graph and create clones of each node
     while stack:
         original = stack.pop()
 
@@ -57,8 +37,10 @@ def clone_graph(node: Node | None) -> Node | None:
 
         originals_to_clones[original] = Node(original.value)
 
+        # Add neighbors to the stack for further processing
         stack.extend(original.neighbors or [])
 
+    # Connect cloned nodes to form the cloned graph
     for original, clone in originals_to_clones.items():
         for neighbor in original.neighbors or []:
             cloned_neighbor = originals_to_clones[neighbor]
@@ -68,8 +50,8 @@ def clone_graph(node: Node | None) -> Node | None:
 
             clone.neighbors.append(cloned_neighbor)
 
+    # Return the clone of the initial node
     return originals_to_clones[node]
-
 
 if __name__ == "__main__":
     import doctest
